@@ -5,24 +5,17 @@
  */
 
 import React, { Component } from 'react';
-import {
-  Platform,
-  View
-} from 'react-native';
+
+import { Header, Spinner, Button, Card, CardSection } from './src/components/common';
 import firebase from 'firebase';
-import { Header } from './src/components/common';
 import LoginForm from './src/components/LoginForm';
+import LoadingPage from './src/components/LoadingPage';
+import HomePage from './src/components/HomePage';
 
+export default class App extends Component {
+   state = { loggedIn: null };
 
-const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\n' +
-    'Cmd+D or shake for dev menu',
-  android: 'Double tap R on your keyboard to reload,\n' +
-    'Shake or press menu button for dev menu',
-});
-
-export default class App extends Component<{}> {
-  componentWillMount(){
+  componentWillMount() {
     firebase.initializeApp({
       apiKey: "AIzaSyCIG6sSEg9WJ76VNYB_EnFZPHbTWNVzA3Q",
       authDomain: "auth-8d09b.firebaseapp.com",
@@ -31,14 +24,26 @@ export default class App extends Component<{}> {
       storageBucket: "auth-8d09b.appspot.com",
       messagingSenderId: "828781488805"  
     });
+
+    firebase.auth().onAuthStateChanged((user) => {
+      console.log(user);
+      if (user) {
+        this.setState({ loggedIn: true });
+      } else {
+        this.setState({ loggedIn: false });
+      }
+    });
   }
 
   render() {
-    return (
-      <View>
-        <Header headerText={'Authentication'}/>
-        <LoginForm />
-      </View>
-    );
+    console.log(this.state);
+    switch(this.state.loggedIn){
+      case true:
+        return <HomePage />;
+      case false:
+        return <LoginForm />;
+      default:
+        return <LoadingPage />;
+    }
   }
 }
